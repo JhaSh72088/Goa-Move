@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goa Move — Sustainable Mobility Planner</title>
+<style>
+:root {
+  --site-primary: #A61B32;
+  --site-on-primary: #FFFFFF;
+  --site-secondary: #FFFFFF;
+  --site-on-secondary: #FFFFFF;
+  --site-background: #FFFFFF;
+  --site-on-background: #FFFFFF;
+  --site-font-body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --site-font-heading: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --site-heading-scale: 1;
+  --site-spacing-scale: 1;
+  --site-radius-scale: 1;
+  --site-decoration-opacity: 1;
+  --surface: light-dark(#FFFFFF, #262122);
+  --surface-muted: light-dark(#F0EAE7, #332B2C);
+  --text: light-dark(#302628, #F4EEEE);	
+  --muted: light-dark(#796B6B, #BEB0B0);
+  --border: light-dark(#E1D5D2, #514344);
+  --accent: var(--site-primary);
+  --accent-soft: light-dark(#F3E2E3, #492B31);
+  --good: light-dark(#A61B32, #F09AA7);
+  --warn: light-dark(#A65A35, #E8A783);
+  color-scheme: light dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; font-family: var(--site-font-body); background: var(--site-background); color: var(--site-on-background); }
+button, select { font: inherit; }
+button, select, a { -webkit-tap-highlight-color: transparent; }
+#app { min-height: 100vh; width: 100%; background-color: var(--site-background); color: var(--site-on-background); border-radius: 0; overflow: hidden; }
+.topbar { background: var(--site-primary); color: var(--site-on-primary); padding: calc(26px * var(--site-spacing-scale)) clamp(18px, 4vw, 54px) calc(30px * var(--site-spacing-scale)); position: relative; }
+.topbar:after { content: ""; position: absolute; width: 300px; height: 300px; right: -90px; top: -190px; border: 1px solid rgba(255,255,255,.15); border-radius: 50%; box-shadow: 0 0 0 32px rgba(255,255,255,.04), 0 0 0 64px rgba(255,255,255,.03); opacity: var(--site-decoration-opacity); pointer-events: none; }
+.brandline { display:flex; align-items:center; gap:12px; position:relative; z-index:1; }
+.logo { display:grid; place-items:center; width:42px; height:42px; border-radius:14px; background:rgba(255,255,255,.14); font-size:23px; }
+.brand { font-size:13px; letter-spacing:.16em; font-weight:800; }
+.eyebrow { text-transform:uppercase; letter-spacing:.13em; font-size:10px; font-weight:800; opacity:.76; }
+.hero { max-width: 1120px; margin: 30px auto 0; position:relative; z-index:1; }
+h1 { font-family:var(--site-font-heading); font-size:calc(clamp(30px, 5vw, 48px) * var(--site-heading-scale)); letter-spacing:-.045em; line-height:1.04; margin:9px 0 12px; max-width:740px; }
+.hero p { color:rgba(255,255,255,.79); max-width:620px; line-height:1.6; margin:0; font-size:14px; }
+.hero-tags { display:flex; gap:8px; flex-wrap:wrap; margin-top:22px; }
+.pill { display:inline-flex; align-items:center; gap:7px; border:1px solid rgba(255,255,255,.24); background:rgba(255,255,255,.08); padding:7px 10px; border-radius:999px; font-size:11px; color:white; }
+main { max-width:1120px; margin:0 auto; padding:26px clamp(14px, 3vw, 32px) 44px; }
+.section-heading { display:flex; justify-content:space-between; align-items:end; gap:16px; margin:4px 0 14px; }
+.section-heading h2 { font-size:calc(19px * var(--site-heading-scale)); margin:0; letter-spacing:-.025em; }
+.section-heading p { margin:5px 0 0; color:var(--muted); font-size:12px; }
+.tag { border-radius:999px; padding:6px 9px; background:var(--accent-soft); color:var(--accent); font-size:10px; font-weight:800; white-space:nowrap; }
+.grid { display:grid; grid-template-columns:minmax(0, 1.08fr) minmax(300px, .92fr); gap:16px; align-items:start; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:calc(20px * var(--site-radius-scale)); padding:calc(20px * var(--site-spacing-scale)); min-width:0; }
+.card h3 { margin:0; font-size:15px; letter-spacing:-.02em; }
+.card-intro { color:var(--muted); font-size:12px; line-height:1.5; margin:6px 0 18px; }
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.field label { display:block; font-size:11px; font-weight:800; color:var(--muted); margin:0 0 7px; }
+.field select { width:100%; border:1px solid var(--border); background:var(--surface); color:var(--text); border-radius:11px; padding:12px 34px 12px 12px; outline:none; }
+.field select:focus, button:focus-visible { outline:3px solid #C66A79; outline-offset:2px; }
+.swapline { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:14px 0 16px; }
+.helper { font-size:11px; color:var(--muted); line-height:1.45; }
+.btn { border:0; border-radius:11px; padding:11px 14px; font-weight:800; font-size:12px; cursor:pointer; transition:transform .15s, opacity .15s; }
+.btn:hover { transform:translateY(-1px); }
+.btn-primary { background:var(--site-primary); color:var(--site-on-primary); }
+.btn-quiet { background:var(--surface-muted); color:var(--text); border:1px solid var(--border); }
+.route-strip { margin-top:17px; background:var(--surface-muted); border:1px solid var(--border); padding:14px; border-radius:14px; }
+.route-strip-top { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+.route-strip-top strong { font-size:12px; }
+.route-strip-top span { font-size:10px; color:var(--muted); }
+.route-line { display:flex; gap:0; overflow-x:auto; padding:3px 0 6px; scrollbar-width:thin; }
+.route-stop { min-width:75px; flex:1; position:relative; padding-top:18px; font-size:10px; color:var(--text); line-height:1.3; }
+.route-stop:before { content:""; position:absolute; top:3px; left:0; right:0; height:3px; background:var(--border); }
+.route-stop:first-child:before { left:7px; }
+.route-stop:last-child:before { right:calc(100% - 7px); }
+.route-stop:after { content:""; position:absolute; width:9px; height:9px; border-radius:50%; background:var(--accent); border:2px solid var(--surface-muted); top:0; left:0; box-shadow:0 0 0 1px var(--accent); }
+.route-stop small { display:block; color:var(--muted); margin-top:4px; }
+.results { display:grid; grid-template-columns:repeat(3, 1fr); gap:9px; margin-top:14px; }
+.metric { border:1px solid var(--border); background:var(--surface); border-radius:14px; padding:13px 12px; min-width:0; }
+.metric .label { color:var(--muted); font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; }
+.metric .value { font-size:clamp(19px, 2.7vw, 27px); font-weight:850; letter-spacing:-.05em; margin:7px 0 3px; overflow-wrap:anywhere; }
+.metric .sub { color:var(--muted); font-size:10px; line-height:1.35; }
+.metric.highlight { background:var(--accent-soft); border-color:color-mix(in srgb, var(--accent) 25%, var(--border)); }
+.metric.highlight .value { color:var(--accent); }
+.emissions { margin-top:15px; padding:15px; border:1px solid var(--border); border-radius:14px; }
+.emissions-head { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+.emissions-head strong { font-size:12px; }
+.emissions-head span { font-size:11px; color:var(--good); font-weight:800; }
+.bar-row { display:grid; grid-template-columns:92px 1fr 58px; align-items:center; gap:8px; margin-top:12px; font-size:10px; }
+.bar-track { height:9px; background:var(--surface-muted); border-radius:99px; overflow:hidden; }
+.bar-fill { height:100%; border-radius:99px; transition:width .25s ease; }
+.bar-car { background:#8C817F; }
+.bar-network { background:var(--accent); }
+.emissions-note { color:var(--muted); font-size:10px; line-height:1.5; margin:12px 0 0; }
+.journey-steps { margin-top:16px; }
+.journey-steps h4 { font-size:12px; margin:0 0 10px; }
+.step { display:grid; grid-template-columns:28px 1fr auto; gap:9px; align-items:center; padding:10px 0; border-top:1px solid var(--border); }
+.step-icon { width:28px; height:28px; border-radius:9px; display:grid; place-items:center; background:var(--surface-muted); font-size:8px; font-weight:800; letter-spacing:-.03em; color:var(--accent); }
+.step strong { display:block; font-size:11px; }
+.step small { display:block; color:var(--muted); font-size:10px; margin-top:3px; line-height:1.4; }
+.step .step-stat { text-align:right; font-size:11px; font-weight:800; white-space:nowrap; }
+.step .step-stat small { font-weight:500; }
+.empty-state { background:var(--surface-muted); border-radius:12px; padding:14px; color:var(--muted); font-size:12px; line-height:1.5; }
+.network-section { margin-top:26px; }
+.network-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; }
+.network-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:15px; }
+.network-top { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.mode-icon { width:34px; height:34px; display:grid; place-items:center; border-radius:11px; background:var(--accent-soft); font-size:8px; font-weight:850; letter-spacing:-.04em; color:var(--accent); }
+.network-card h3 { margin:12px 0 5px; font-size:13px; }
+.network-card .distance { font-size:23px; font-weight:850; letter-spacing:-.04em; }
+.network-card p { color:var(--muted); font-size:11px; line-height:1.5; margin:8px 0 0; }
+.network-card .stops { margin-top:11px; padding-top:10px; border-top:1px solid var(--border); font-size:10px; line-height:1.7; color:var(--text); }
+.assumptions { margin-top:22px; display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.assumption-box { background:var(--surface-muted); border:1px solid var(--border); padding:15px; border-radius:14px; }
+.assumption-box h3 { font-size:12px; margin:0 0 9px; }
+.assumption-box p, .assumption-box li { color:var(--muted); font-size:11px; line-height:1.55; }
+.assumption-box p { margin:0; }
+.assumption-box ul { padding-left:17px; margin:0; }
+.footer { border-top:1px solid var(--border); margin-top:26px; padding-top:16px; color:var(--muted); font-size:10px; line-height:1.6; display:flex; justify-content:space-between; gap:12px; }
+.notice { border-left:3px solid var(--warn); padding:9px 11px; margin-top:12px; background:var(--surface-muted); color:var(--muted); border-radius:0 9px 9px 0; font-size:10px; line-height:1.5; }
+@media (max-width:800px) { .grid { grid-template-columns:1fr; } .network-grid { grid-template-columns:1fr; } .network-card { display:grid; grid-template-columns:42px 1fr; column-gap:10px; } .network-card .mode-icon { grid-row:span 3; } .network-card h3 { margin:0 0 4px; } .network-card p { margin:0; } .network-card .stops { grid-column:2; } }
+@media (max-width:520px) { .form-grid { grid-template-columns:1fr; } .results { grid-template-columns:1fr 1fr; } .metric:last-child { grid-column:1 / -1; } .assumptions { grid-template-columns:1fr; } .section-heading { align-items:start; flex-direction:column; } .footer { flex-direction:column; } .route-stop { min-width:68px; } }
+@media (prefers-color-scheme: dark) { .topbar { --site-primary:#7F172A; } }
+
+/* Updated visual theme: white page, turquoise header, subtle grey panels */
+:root {
+  --site-primary: #25B8AD;
+  --site-on-primary: #FFFFFF;
+  --site-secondary: #FFFFFF;
+  --site-on-secondary: #222222;
+  --site-background: #FFFFFF;
+  --site-on-background: #222222;
+  --surface: #FFFFFF;
+  --surface-muted: #F3F5F5;
+  --text: #222222;
+  --muted: #666D6D;
+  --border: #E1E5E5;
+  --accent: #159F96;
+  --accent-soft: #EEF2F2;
+  --good: #159F96;
+  --warn: #8A9695;
+  color-scheme: light;
+}
+html, body, #app {
+  background: #FFFFFF;
+  color: #222222;
+}
+.topbar {
+  background: #25B8AD;
+  color: #FFFFFF;
+}
+.topbar:after {
+  border-color: rgba(255,255,255,.18);
+}
+.logo {
+  background: rgba(255,255,255,.18);
+  color: #FFFFFF;
+}
+.topbar .brand,
+.topbar .eyebrow,
+.topbar h1 {
+  color: #FFFFFF;
+}
+.hero p {
+  color: rgba(255,255,255,.92);
+}
+.pill {
+  color: #FFFFFF;
+  border-color: rgba(255,255,255,.38);
+  background: rgba(255,255,255,.12);
+}
+main {
+  background: #FFFFFF;
+  color: #222222;
+}
+.card, .network-card, .metric, .emissions {
+  background: #FFFFFF;
+  border-color: #E1E5E5;
+}
+.route-strip, .assumption-box, .empty-state, .notice,
+.btn-quiet, .step-icon, .mode-icon, .bar-track {
+  background: #F3F5F5;
+  border-color: #E1E5E5;
+}
+.metric.highlight {
+  background: #F1F4F4;
+  border-color: #DDE3E2;
+}
+.tag {
+  background: #EEF2F2;
+  color: #159F96;
+}
+.btn-primary {
+  background: #25B8AD;
+  color: #FFFFFF;
+}
+.btn-quiet {
+  color: #222222;
+}
+.bar-car {
+  background: #AEB6B5;
+}
+.bar-network {
+  background: #25B8AD;
+}
+.field select {
+  background: #FFFFFF;
+  color: #222222;
+  border-color: #D9DEDE;
+}
+.field select:focus, button:focus-visible {
+  outline: 3px solid #25B8AD;
+  outline-offset: 2px;
+}
+.section-heading h2,
+.card h3,
+.card h4,
+.metric .value,
+.network-card h3,
+.network-card .distance,
+.step strong,
+.emissions-head strong,
+.assumption-box h3 {
+  color: #222222;
+}
+.section-heading p,
+.card-intro,
+.field label,
+.helper,
+.route-strip-top span,
+.route-stop small,
+.metric .label,
+.metric .sub,
+.emissions-note,
+.step small,
+.network-card p,
+.assumption-box p,
+.assumption-box li,
+.footer,
+.notice {
+  color: #666D6D;
+}
+.route-stop,
+.network-card .stops,
+.step .step-stat,
+.bar-row,
+.emissions-head {
+  color: #222222;
+}
+.metric.highlight .value,
+.emissions-head span,
+.step-icon,
+.mode-icon {
+  color: #159F96;
+}
+.step, .network-card .stops, .footer {
+  border-color: #E1E5E5;
+}
+.notice {
+  border-left-color: #AEB6B5;
+}
+@media (prefers-color-scheme: dark) {
+  .topbar { --site-primary: #25B8AD; }
+}
+
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="brandline"><div class="logo" aria-hidden="true">GM</div><div><div class="brand">GOA MOVE</div><div class="eyebrow" style="margin-top:3px">Sustainable tourism mobility</div></div></div>
+    <div class="hero">
+      <div class="eyebrow">A proposed North Goa network</div>
+      <h1>Move between beaches.<br>Leave a lighter footprint.</h1>
+      <p>Compare bus, train and beach-shuttle connections by distance, estimated fare, journey time and indicative CO₂ emissions.</p>
+    </div>
+  </header>
+  <main>
+    <div class="section-heading"><div><h2>Plan a journey</h2><p>Choose any two stops to find the quickest connected route in the network.</p></div><span class="tag">LIVE CALCULATION</span></div>
+    <div class="grid">
+      <section class="card" aria-labelledby="planner-title">
+        <h3 id="planner-title">Journey planner</h3>
+        <p class="card-intro">The route finder uses your cumulative distances and only transfers at defined interchange points.</p>
+        <div class="form-grid">
+          <div class="field"><label for="origin">STARTING LOCATION</label><select id="origin"></select></div>
+          <div class="field"><label for="destination">DESTINATION</label><select id="destination"></select></div>
+        </div>
+        <div class="swapline"><span class="helper">Routes are optimised for estimated travel time, including a transfer allowance.</span><button class="btn btn-quiet" id="swap" type="button" aria-label="Swap origin and destination">Swap locations</button></div>
+        <button class="btn btn-primary" id="calculate" type="button">Calculate journey</button>
+        <div id="routeVisual" class="route-strip" aria-live="polite"></div>
+        
+      </section>
+      <section class="card" aria-labelledby="results-title">
+        <h3 id="results-title">Journey comparison</h3>
+        <p class="card-intro">Estimated figures for one passenger, one way.</p>
+        <div class="results">
+          <div class="metric"><div class="label">Journey time</div><div class="value" id="timeValue">—</div><div class="sub" id="timeSub">Select a route</div></div>
+          <div class="metric"><div class="label">Estimated fare</div><div class="value" id="fareValue">—</div><div class="sub" id="fareSub">One-way, per person</div></div>
+          <div class="metric highlight"><div class="label">CO₂ avoided</div><div class="value" id="savedValue">—</div><div class="sub" id="savedSub">vs. illustrative car baseline</div></div>
+        </div>
+        <div class="emissions">
+          <div class="emissions-head"><strong>Estimated emissions per passenger</strong><span id="reductionLabel">—</span></div>
+          <div class="bar-row"><span>Conventional car</span><div class="bar-track"><div class="bar-fill bar-car" id="carBar" style="width:100%"></div></div><strong id="carEmissions">—</strong></div>
+          <div class="bar-row"><span>Proposed route</span><div class="bar-track"><div class="bar-fill bar-network" id="networkBar" style="width:0%"></div></div><strong id="networkEmissions">—</strong></div>
+        </div>
+        <div class="journey-steps" id="journeySteps"><h4>Journey breakdown</h4><div class="empty-state">Your connected route and each transport leg will appear here.</div></div>
+      </section>
+    </div>
+
+    <section class="network-section">
+      <div class="section-heading"><div><h2>Proposed network</h2></div><span class="tag">ROUTE DATA</span></div>
+      <div class="network-grid">
+        <article class="network-card"><div class="mode-icon" aria-hidden="true">BUS</div><div class="network-top"><span class="eyebrow">NETWORK 01</span><span class="tag">₹3/km</span></div><h3>Main arterial bus</h3><div class="distance">61 km</div><p>Mopa to Panaji via Pernem, Mapusa, Siolim and Porvorim.</p><div class="stops">Mopa → Pernem → Mapusa → Siolim → Porvorim → Panaji</div></article>
+        <article class="network-card"><div class="mode-icon" aria-hidden="true">RAIL</div><div class="network-top"><span class="eyebrow">NETWORK 02</span><span class="tag">₹5 + ₹2/km</span></div><h3>Proposed train</h3><div class="distance">63 km</div><p>Connects the airport, northern beaches and Panaji.</p><div class="stops">Mopa → Pernem → Morjim → Anjuna–Vagator → Calangute–Baga → Candolim → Panaji</div></article>
+        <article class="network-card"><div class="mode-icon" aria-hidden="true">SHUTTLE</div><div class="network-top"><span class="eyebrow">NETWORK 03</span><span class="tag">₹5/km</span></div><h3>North Goa beach shuttle</h3><div class="distance">48 km</div><p>Beach-to-beach travel along the northern coastal corridor.</p><div class="stops">Querim → Arambol → Mandrem → Ashwerm → Morjim → Vagator → Anjuna → Baga → Calangute → Candolim → Sinquerim</div></article>
+      </div>
+    </section>
+  </main>
+</div>
+<script>
+const routes = [
+  { id: "bus", name: "Main arterial bus", mode: "bus", speed: 30, rate: 3, fixed: 0, factor: 0.018, stops: [
+    { id: "mopa", name: "Mopa", km: 0 }, { id: "pernem", name: "Pernem", km: 13 }, { id: "mapusa", name: "Mapusa", km: 28 }, { id: "siolim", name: "Siolim", km: 37 }, { id: "porvorim", name: "Porvorim", km: 53 }, { id: "panaji", name: "Panaji", km: 61 }
+  ]},
+  { id: "train", name: "Proposed train", mode: "train", speed: 45, rate: 2, fixed: 5, factor: 0.015, stops: [
+    { id: "mopa", name: "Mopa", km: 0 }, { id: "pernem", name: "Pernem", km: 10 }, { id: "morjim", name: "Morjim", km: 24 }, { id: "anjuna-vagator", name: "Anjuna–Vagator", km: 36 }, { id: "calangute-baga", name: "Calangute–Baga", km: 44 }, { id: "candolim", name: "Candolim", km: 51 }, { id: "panaji", name: "Panaji", km: 63 }
+  ]},
+  { id: "shuttle", name: "Beach shuttle", mode: "shuttle", speed: 30, rate: 5, fixed: 0, factor: 0.012, stops: [
+    { id: "querim", name: "Querim", km: 0 }, { id: "arambol", name: "Arambol", km: 8 }, { id: "mandrem", name: "Mandrem", km: 14 }, { id: "ashwerm", name: "Ashwerm", km: 17 }, { id: "morjim", name: "Morjim", km: 22 }, { id: "vagator", name: "Vagator", km: 31 }, { id: "anjuna", name: "Anjuna", km: 35 }, { id: "baga", name: "Baga", km: 41 }, { id: "calangute", name: "Calangute", km: 42 }, { id: "candolim", name: "Candolim", km: 46 }, { id: "sinquerim", name: "Sinquerim", km: 48 }
+  ]}
+];
+const modeInfo = {
+  bus: { label: "Bus", icon: "BUS", speed: 30, rate: 3, fixed: 0, factor: 0.018 },
+  train: { label: "Train", icon: "RAIL", speed: 45, rate: 2, fixed: 5, factor: 0.015 },
+  shuttle: { label: "Beach shuttle", icon: "SHUTTLE", speed: 30, rate: 5, fixed: 0, factor: 0.012 },
+  transfer: { label: "Transfer", icon: "XFER", speed: Infinity, rate: 0, fixed: 0, factor: 0 }
+};
+const interchangePairs = [
+  ["mopa", "mopa"], ["pernem", "pernem"], ["panaji", "panaji"],
+  ["morjim", "morjim"], ["candolim", "candolim"],
+  ["anjuna-vagator", "anjuna"], ["anjuna-vagator", "vagator"],
+  ["calangute-baga", "calangute"], ["calangute-baga", "baga"]
+];
+const graph = new Map();
+const nodeNames = new Map();
+function addNode(id, name) { if (!graph.has(id)) graph.set(id, []); if (!nodeNames.has(id)) nodeNames.set(id, name); }
+function addEdge(a, b, edge) { graph.get(a).push({ to: b, ...edge }); }
+routes.forEach(route => {
+  route.stops.forEach(stop => addNode(stop.id, stop.name));
+  for (let i = 0; i < route.stops.length - 1; i++) {
+    const a = route.stops[i], b = route.stops[i + 1];
+    const distance = b.km - a.km;
+    const edge = { type: "travel", routeId: route.id, mode: route.mode, distance, time: distance / route.speed * 60, rate: route.rate, fixed: route.fixed, factor: route.factor, routeName: route.name };
+    addEdge(a.id, b.id, edge);
+    addEdge(b.id, a.id, edge);
+  }
+});
+function addInterchange(a, b) {
+  if (a === b || !graph.has(a) || !graph.has(b)) return;
+  const edge = { type: "transfer", mode: "transfer", distance: 0, time: 10, rate: 0, fixed: 0, factor: 0, routeName: "Interchange" };
+  addEdge(a, b, edge); addEdge(b, a, edge);
+}
+// Same-name locations across routes are connected only where an interchange is defined.
+interchangePairs.forEach(([a,b]) => addInterchange(a,b));
+const allStops = [
+  ["Mopa", "mopa"], ["Pernem", "pernem"], ["Mapusa", "mapusa"], ["Siolim", "siolim"], ["Porvorim", "porvorim"], ["Panaji", "panaji"], ["Querim", "querim"], ["Arambol", "arambol"], ["Mandrem", "mandrem"], ["Ashwerm", "ashwerm"], ["Morjim", "morjim"], ["Vagator", "vagator"], ["Anjuna", "anjuna"], ["Baga", "baga"], ["Calangute", "calangute"], ["Candolim", "candolim"], ["Sinquerim", "sinquerim"], ["Anjuna–Vagator station", "anjuna-vagator"], ["Calangute–Baga station", "calangute-baga"]
+];
+const originEl = document.getElementById("origin");
+const destinationEl = document.getElementById("destination");
+function fillSelect(select, selected) {
+  select.innerHTML = "";
+  allStops.forEach(([label, id]) => { const opt = document.createElement("option"); opt.value = id; opt.textContent = label; select.appendChild(opt); });
+  select.value = selected;
+}
+fillSelect(originEl, "mopa"); fillSelect(destinationEl, "sinquerim");
+function findFastestPath(start, end) {
+  if (start === end) return { edges: [], nodes: [start], time: 0 };
+  const dist = new Map([...graph.keys()].map(id => [id, Infinity]));
+  const prev = new Map(); const visited = new Set(); dist.set(start, 0);
+  while (visited.size < graph.size) {
+    let current = null, best = Infinity;
+    for (const [id, d] of dist) if (!visited.has(id) && d < best) { best = d; current = id; }
+    if (current === null || best === Infinity) break;
+    if (current === end) break;
+    visited.add(current);
+    for (const edge of graph.get(current) || []) {
+      if (visited.has(edge.to)) continue;
+      const candidate = best + edge.time;
+      if (candidate < dist.get(edge.to)) { dist.set(edge.to, candidate); prev.set(edge.to, { from: current, edge }); }
+    }
+  }
+  if (!Number.isFinite(dist.get(end))) return null;
+  const edges = [], nodes = [end]; let cursor = end;
+  while (cursor !== start) { const item = prev.get(cursor); if (!item) return null; edges.unshift(item.edge); cursor = item.from; nodes.unshift(cursor); }
+  return { edges, nodes, time: dist.get(end) };
+}
+function money(n) { return "₹" + Math.round(n).toLocaleString("en-IN"); }
+function formatTime(mins) { mins = Math.round(mins); if (mins < 60) return mins + " min"; const h = Math.floor(mins/60), m = mins%60; return h + " hr" + (m ? " " + m + " min" : ""); }
+function formatKg(kg) { return kg < 1 ? (kg*1000).toFixed(0) + " g" : kg.toFixed(2) + " kg"; }
+function labelFor(id) { const found = allStops.find(s => s[1] === id); return found ? found[0] : (nodeNames.get(id) || id); }
+function calculate() {
+  const start = originEl.value, end = destinationEl.value;
+  const path = findFastestPath(start, end);
+  const routeVisual = document.getElementById("routeVisual");
+  const stepsEl = document.getElementById("journeySteps");
+  if (!path) {
+    routeVisual.innerHTML = '<div class="route-strip-top"><strong>No connected route yet</strong><span>Network gap</span></div><div class="empty-state">There is currently no defined interchange connecting these locations. Add a route or confirm a transfer point to make this journey available.</div>';
+    stepsEl.innerHTML = '<h4>Journey breakdown</h4><div class="empty-state">No valid connected journey was found. The planner will not invent a transfer.</div>';
+    ["timeValue","fareValue","savedValue","carEmissions","networkEmissions"].forEach(id => document.getElementById(id).textContent = "—");
+    document.getElementById("timeSub").textContent = "No connected route"; document.getElementById("fareSub").textContent = "Add an interchange"; document.getElementById("savedSub").textContent = "No comparison available"; document.getElementById("reductionLabel").textContent = "—"; document.getElementById("carBar").style.width = "100%"; document.getElementById("networkBar").style.width = "0%";
+    return;
+  }
+  const travelEdges = path.edges.filter(e => e.type === "travel");
+  let fare = 0, distance = 0, emissions = 0, trainBoarded = false, prevMode = null;
+  travelEdges.forEach((edge, index) => {
+    distance += edge.distance;
+    fare += edge.distance * edge.rate;
+    if (edge.mode === "train" && prevMode !== "train") fare += edge.fixed;
+    emissions += edge.distance * edge.factor;
+    prevMode = edge.mode;
+  });
+  const totalTime = path.edges.reduce((sum, e) => sum + e.time, 0);
+  const transferCount = path.edges.filter(e => e.type === "transfer").length;
+  const carEmissions = distance * 0.03;
+  const saved = carEmissions - emissions;
+  const reduction = carEmissions > 0 ? Math.abs(saved) / carEmissions * 100 : 0;
+  document.querySelector(".metric.highlight .label").textContent = saved >= 0 ? "CO₂ avoided" : "CO₂ increase";
+  document.getElementById("timeValue").textContent = formatTime(totalTime);
+  document.getElementById("timeSub").textContent = `${distance.toFixed(1)} km · ${transferCount} transfer${transferCount===1?"":"s"}`;
+  document.getElementById("fareValue").textContent = money(fare);
+  document.getElementById("fareSub").textContent = "One-way, per passenger";
+  document.getElementById("savedValue").textContent = formatKg(Math.abs(saved));
+  document.getElementById("savedSub").textContent = saved >= 0 ? "less than car baseline" : "more than car baseline";
+  document.getElementById("carEmissions").textContent = formatKg(carEmissions);
+  document.getElementById("networkEmissions").textContent = formatKg(emissions);
+  document.getElementById("reductionLabel").textContent = saved >= 0 ? `${reduction.toFixed(0)}% lower` : `${reduction.toFixed(0)}% higher`;
+  document.getElementById("carBar").style.width = "100%";
+  document.getElementById("networkBar").style.width = `${Math.max(0, Math.min(100, emissions / Math.max(carEmissions, emissions, .01) * 100))}%`;
+  const routeNodes = path.nodes;
+  routeVisual.innerHTML = `<div class="route-strip-top"><strong>${labelFor(start)} → ${labelFor(end)}</strong><span>${distance.toFixed(1)} km total</span></div><div class="route-line">${routeNodes.map((id, i) => `<div class="route-stop">${labelFor(id)}<small>${i===0?"Start":i===routeNodes.length-1?"Destination":path.edges[i-1]?.type === "transfer" ? "Transfer" : "Stop"}</small></div>`).join("")}</div>`;
+  let stepsHtml = '<h4>Journey breakdown</h4>';
+  if (!path.edges.length) stepsHtml += '<div class="empty-state">You are already at this location. No travel is required.</div>';
+  else path.edges.forEach((edge, i) => {
+    const from = path.nodes[i], to = path.nodes[i+1];
+    if (edge.type === "transfer") {
+      stepsHtml += `<div class="step"><div class="step-icon">XFER</div><div><strong>Transfer at ${labelFor(from)}</strong><small>Change transport network</small></div><div class="step-stat">10 min<small>No fare added</small></div></div>`;
+    } else {
+      const eFare = edge.distance * edge.rate;
+      const edgeEmissions = edge.distance * edge.factor;
+      stepsHtml += `<div class="step"><div class="step-icon">${modeInfo[edge.mode].icon}</div><div><strong>${edge.routeName}: ${labelFor(from)} → ${labelFor(to)}</strong><small>${edge.distance.toFixed(1)} km · ${formatKg(edgeEmissions)} estimated CO₂</small></div><div class="step-stat">${formatTime(edge.time)}<small>${money(eFare)}${edge.mode === "train" && (i===0 || path.edges[i-1].mode !== "train") ? " + ₹5 base" : ""}</small></div></div>`;
+    }
+  });
+  stepsEl.innerHTML = stepsHtml;
+}
+document.getElementById("calculate").addEventListener("click", calculate);
+document.getElementById("swap").addEventListener("click", () => { const old = originEl.value; originEl.value = destinationEl.value; destinationEl.value = old; calculate(); });
+originEl.addEventListener("change", calculate); destinationEl.addEventListener("change", calculate);
+calculate();
+</script>
+</body>
+</html>
