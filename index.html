@@ -457,5 +457,16 @@ document.getElementById("swap").addEventListener("click", () => { const old = or
 originEl.addEventListener("change", calculate); destinationEl.addEventListener("change", calculate);
 calculate();
 </script>
+  
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/Goa-Move/sw.js')
+      .then(() => console.log('Offline mode enabled'))
+      .catch(err => console.log('SW error:', err));
+  });
+}
+</script>
+
 </body>
 </html>
